@@ -105,11 +105,12 @@ function unlock(type, previousProps) {
 
   switch (type) {
     case 'overflow':
-      return unlockOverflow(previousProps);
+      unlockOverflow(previousProps);
+      break;
     case 'fixed':
     case 'position':
     default:
-      return unlockFixed(previousProps);
+      unlockFixed(previousProps);
   }
 }
 
