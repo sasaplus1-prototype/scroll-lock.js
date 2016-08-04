@@ -63,17 +63,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var scrollTop = __webpack_require__(1);
 
+	var html, body;
+
 	/**
 	 * scroll lock by position property
 	 *
 	 * @return {Object}
 	 */
 	function lockFixed() {
-	  var body, top, previousProps;
+	  var top, previousProps;
 
-	  body = document.body;
-	  
 	  top = scrollTop.get();
+
+	  body || (body = document.body);
 
 	  previousProps = {
 	    top: body.style.top,
@@ -94,9 +96,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Object} [previousProps]
 	 */
 	function unlockFixed(previousProps) {
-	  var body = document.body;
-
 	  previousProps || (previousProps = {});
+
+	  body || (body = document.body);
 
 	  body.style.top = previousProps.top || '';
 	  body.style.width = previousProps.width || '';
@@ -109,10 +111,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @return {Object}
 	 */
 	function lockOverflow() {
-	  var html, body, previousProps;
+	  var previousProps;
 
-	  html = document.documentElement;
-	  body = document.body;
+	  html || (html = document.documentElement);
+	  body || (body = document.body);
 
 	  previousProps = {
 	    htmlOverflow: html.style.overflow,
@@ -131,12 +133,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Object} [previousProps]
 	 */
 	function unlockOverflow(previousProps) {
-	  var html, body;
-
 	  previousProps || (previousProps = {});
 
-	  html = document.documentElement;
-	  body = document.body;
+	  html || (html = document.documentElement);
+	  body || (body = document.body);
 
 	  html.style.overflow = previousProps.htmlOverflow || '';
 	  body.style.overflow = previousProps.bodyOverflow || '';
