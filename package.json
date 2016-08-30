@@ -17,6 +17,7 @@
     "webpack": "webpack --colors --display-error-details --progress"
   },
   "dependencies": {
+    "event-listener": "github:sasaplus1-prototype/event-listener.js",
     "scroll-top": "github:sasaplus1-prototype/scroll-top.js"
   },
   "devDependencies": {
