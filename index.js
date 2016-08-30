@@ -1,8 +1,48 @@
 'use strict';
 
-var scrollTop = require('scroll-top');
+var eventListener = require('event-listener'),
+    scrollTop = require('scroll-top');
 
 var html, body;
+
+var wheelEventName;
+
+/**
+ * for canceling event
+ */
+function cancelEvent(event) {
+  event.preventDefault();
+}
+
+/**
+ * scroll lock by cancel event
+ */
+function lockEvent() {
+  wheelEventName || (
+    wheelEventName =
+      ('onwheel' in document) ? 'wheel' :
+      ('onmousewheel' in document) ? 'mousewheel' : 'DOMMouseScroll'
+  );
+
+  eventListener.on(window, 'scroll', cancelEvent);
+  eventListener.on(document, 'touchmove', cancelEvent);
+  eventListener.on(document, wheelEventName, cancelEvent);
+}
+
+/**
+ * scroll unlock by cancel event
+ */
+function unlockEvent() {
+  wheelEventName || (
+    wheelEventName =
+      ('onwheel' in document) ? 'wheel' :
+      ('onmousewheel' in document) ? 'mousewheel' : 'DOMMouseScroll'
+  );
+
+  eventListener.off(window, 'scroll', cancelEvent);
+  eventListener.off(document, 'touchmove', cancelEvent);
+  eventListener.off(document, wheelEventName, cancelEvent);
+}
 
 /**
  * scroll lock by position property
@@ -35,13 +75,27 @@ function lockFixed() {
  * @param {Object} [previousProps]
  */
 function unlockFixed(previousProps) {
+  var top;
+
   previousProps || (previousProps = {});
 
   body || (body = document.body);
 
-  body.style.top = previousProps.top || '';
-  body.style.width = previousProps.width || '';
+  if (/^-.*px$/.test(previousProps.top)) {
+    top = parseFloat(
+      previousProps.top
+        .replace(/^-/, '')
+        .replace(/px$/, '')
+    );
+  }
+
   body.style.position = previousProps.position || '';
+  body.style.width = previousProps.width || '';
+  body.style.top = previousProps.top || '';
+
+  if (top) {
+    scrollTop.set(top);
+  }
 }
 
 /**
@@ -89,6 +143,8 @@ function unlockOverflow(previousProps) {
  */
 function lock(type) {
   switch (type) {
+    case 'event':
+      return lockEvent();
     case 'overflow':
       return lockOverflow();
     case 'fixed':
@@ -115,6 +171,9 @@ function unlock(type, previousProps) {
   }
 
   switch (type) {
+    case 'event':
+      unlockEvent();
+      break;
     case 'overflow':
       unlockOverflow(previousProps);
       break;

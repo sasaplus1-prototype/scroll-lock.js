@@ -1,6 +1,6 @@
 {
   "name": "scroll-lock",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": "sasa+1 <sasaplus1@gmail.com>",
   "description": "lock scroll",
   "main": "./index.js",
@@ -17,6 +17,7 @@
     "webpack": "webpack --colors --display-error-details --progress"
   },
   "dependencies": {
+    "event-listener": "github:sasaplus1-prototype/event-listener.js",
     "scroll-top": "github:sasaplus1-prototype/scroll-top.js"
   },
   "devDependencies": {
