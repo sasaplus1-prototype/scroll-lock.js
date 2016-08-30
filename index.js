@@ -35,13 +35,27 @@ function lockFixed() {
  * @param {Object} [previousProps]
  */
 function unlockFixed(previousProps) {
+  var top;
+
   previousProps || (previousProps = {});
 
   body || (body = document.body);
 
-  body.style.top = previousProps.top || '';
-  body.style.width = previousProps.width || '';
+  if (/^-.*px$/.test(previousProps.top)) {
+    top = parseFloat(
+      previousProps.top
+        .replace(/^-/, '')
+        .replace(/px$/, '')
+    );
+  }
+
   body.style.position = previousProps.position || '';
+  body.style.width = previousProps.width || '';
+  body.style.top = previousProps.top || '';
+
+  if (top) {
+    scrollTop.set(top);
+  }
 }
 
 /**
