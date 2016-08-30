@@ -61,9 +61,49 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var scrollTop = __webpack_require__(1);
+	var eventListener = __webpack_require__(1),
+	    scrollTop = __webpack_require__(2);
 
 	var html, body;
+
+	var wheelEventName;
+
+	/**
+	 * for canceling event
+	 */
+	function cancelEvent(event) {
+	  event.preventDefault();
+	}
+
+	/**
+	 * scroll lock by cancel event
+	 */
+	function lockEvent() {
+	  wheelEventName || (
+	    wheelEventName =
+	      ('onwheel' in document) ? 'wheel' :
+	      ('onmousewheel' in document) ? 'mousewheel' : 'DOMMouseScroll'
+	  );
+
+	  eventListener.on(window, 'scroll', cancelEvent);
+	  eventListener.on(document, 'touchmove', cancelEvent);
+	  eventListener.on(document, wheelEventName, cancelEvent);
+	}
+
+	/**
+	 * scroll unlock by cancel event
+	 */
+	function unlockEvent() {
+	  wheelEventName || (
+	    wheelEventName =
+	      ('onwheel' in document) ? 'wheel' :
+	      ('onmousewheel' in document) ? 'mousewheel' : 'DOMMouseScroll'
+	  );
+
+	  eventListener.off(window, 'scroll', cancelEvent);
+	  eventListener.off(document, 'touchmove', cancelEvent);
+	  eventListener.off(document, wheelEventName, cancelEvent);
+	}
 
 	/**
 	 * scroll lock by position property
@@ -96,13 +136,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Object} [previousProps]
 	 */
 	function unlockFixed(previousProps) {
+	  var top;
+
 	  previousProps || (previousProps = {});
 
 	  body || (body = document.body);
 
-	  body.style.top = previousProps.top || '';
-	  body.style.width = previousProps.width || '';
+	  if (/^-.*px$/.test(previousProps.top)) {
+	    top = parseFloat(
+	      previousProps.top
+	        .replace(/^-/, '')
+	        .replace(/px$/, '')
+	    );
+	  }
+
 	  body.style.position = previousProps.position || '';
+	  body.style.width = previousProps.width || '';
+	  body.style.top = previousProps.top || '';
+
+	  if (top) {
+	    scrollTop.set(top);
+	  }
 	}
 
 	/**
@@ -150,6 +204,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function lock(type) {
 	  switch (type) {
+	    case 'event':
+	      return lockEvent();
 	    case 'overflow':
 	      return lockOverflow();
 	    case 'fixed':
@@ -176,6 +232,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  switch (type) {
+	    case 'event':
+	      unlockEvent();
+	      break;
 	    case 'overflow':
 	      unlockOverflow(previousProps);
 	      break;
@@ -194,6 +253,56 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 1 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var off = (typeof removeEventListener !== 'undefined') ?
+	  function off(element, eventName, callback, capture) {
+	    return element.removeEventListener(eventName, callback, capture);
+	  } :
+	  function off(element, eventName, callback) {
+	    return element.detachEvent('on' + eventName, callback);
+	  };
+
+	var on = (typeof addEventListener !== 'undefined') ?
+	  function on(element, eventName, callback, capture) {
+	    return element.addEventListener(eventName, callback, capture);
+	  } :
+	  function on(element, eventName, callback) {
+	    return element.attachEvent('on' + eventName, callback);
+	  };
+
+	function once(element, eventName, callback, capture) {
+	  var handler = function() {
+	    off(element, eventName, handler, capture);
+
+	    switch (arguments.length) {
+	      case 0:
+	        return callback.call(this);
+	      case 1:
+	        return callback.call(this, arguments[0]);
+	      case 2:
+	        return callback.call(this, arguments[0], arguments[1]);
+	      case 3:
+	        return callback.call(this, arguments[0], arguments[1], arguments[2]);
+	      default:
+	        return callback.apply(this, arguments);
+	    }
+	  };
+
+	  return on(element, eventName, handler, capture);
+	}
+
+	module.exports = {
+	  off: off,
+	  on: on,
+	  once: once
+	};
+
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	'use strict';
