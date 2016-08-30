@@ -81,9 +81,9 @@ function unlockFixed(previousProps) {
 
   body || (body = document.body);
 
-  if (/^-.*px$/.test(previousProps.top)) {
+  if (/^-.*px$/.test(body.style.top)) {
     top = parseFloat(
-      previousProps.top
+      body.style.top
         .replace(/^-/, '')
         .replace(/px$/, '')
     );
